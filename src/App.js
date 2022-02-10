@@ -1,6 +1,7 @@
 import Table from 'antd/lib/table/Table';
+import { Input, InputNumber, Popconfirm, Select, Switch, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Point, Selection } from 'victory';
+import { Point, Selection, VictoryTooltip, VictoryVoronoiContainer } from 'victory';
 import { VictoryAxis, VictoryBar, VictoryGroup, VictoryScatter, VictoryTheme, VictoryZoomContainer } from 'victory';
 import { VictoryChart, VictoryLine } from 'victory';
 import cl from './App.module.css'
@@ -12,25 +13,53 @@ const App = () => {
         setWidth(ev.target.innerWidth)
     }
 
+
+    const { Option } = Select;
+
     const [minutes, setMinutes] = useState([]);
 
     const setMinutesTicks = () => {
         let minutesTemp = []
-        for (let i = 0; i <= 24 * 60; i++) {
-            if (i % 15 === 0) {
+        // for (let i = 0; i <= 24 * 60; i++) {
+        for (let i = 9 * 60; i <= 21 * 60; i++) {
+            if (i % 10 === 0) {
                 minutesTemp.push(i)
             }
-
         }
         setMinutes([...minutesTemp])
     }
+    const [selectedIdTrain, setSelectedIdTrain] = useState(-1)
+
+    const getIndexOfGraphByIdTrain = (idTrain) => {
+        // setDataTable()
+        if (selectedIdTrain === -1) {
+            return -1
+        } else {
+            let ind
+            let i = 0
+            for (i = 0; i < graphs.length; i++) {
+                if (idTrain === graphs[i].id_train) {
+                    ind = i;
+                    break;
+                }
+            }
+            return ind
+        }
+    }
+
+    const clickGraph = (id_train) => {
+        // console.log(graph)
+        setSelectedIdTrain(id_train)
+
+        // console.log(selectedIdTrain)
+    }
 
     const [columns, setColumns] = useState([
-        {
-            key: 'id_train',
-            title: 'Поезд',
-            dataIndex: 'id_train',
-        },
+        // {
+        //     key: 'id_train',
+        //     title: 'Поезд',
+        //     dataIndex: 'id_train',
+        // },
         {
             key: 'station',
             title: 'Станция',
@@ -61,6 +90,10 @@ const App = () => {
         let map = new Map()
 
         let arx = []
+
+        if (!graph) {
+            return []
+        }
 
         graph.dots.forEach(dot => {
 
@@ -99,37 +132,31 @@ const App = () => {
             color: '#FF5733',
             id_train: 1,
             dots: [
-                { action: 1, x: 552, y: 'Минск', index: 8 },
-                { action: 1, x: 635, y: 'Степянка', index: 6 },
-                { action: 0, x: 618, y: 'Степянка', index: 7 },
-                { action: 0, x: 687, y: 'Борисов', index: 5 },
-                { action: 1, x: 687, y: 'Борисов', index: 4 },
-                { action: 0, x: 752, y: 'Толочин', index: 3 },
-                { action: 1, x: 763, y: 'Толочин', index: 2 },
-                { action: 0, x: 835, y: 'Орша', index: 1 },
+                { action: 1, x: 552, y: 'Минск', index: 1 },
+                { action: 0, x: 618, y: 'Степянка', index: 2 },
+                { action: 1, x: 635, y: 'Степянка', index: 3 },
+                { action: 0, x: 687, y: 'Борисов', index: 4 },
+                { action: 1, x: 687, y: 'Борисов', index: 5 },
+                { action: 0, x: 752, y: 'Толочин', index: 6 },
+                { action: 1, x: 763, y: 'Толочин', index: 7 },
+                { action: 0, x: 835, y: 'Орша', index: 8 },
             ]
 
         },
         {
-            color: 'brown',
+            color: '#000',
             id_train: 2,
             dots: [
                 { action: 1, x: 1091, y: 'Орша', index: 1 },
                 { action: 0, x: 1111, y: 'Толочин', index: 2 },
                 { action: 1, x: 1150, y: 'Толочин', index: 3 },
-                { action: 0, x: 1234, y: 'Минск', index: 4 }
+                { action: 0, x: 1170, y: 'Борисов', index: 4 },
+                { action: 1, x: 1170, y: 'Борисов', index: 5 },
+                { action: 0, x: 1200, y: 'Степянка', index: 6 },
+                { action: 1, x: 1200, y: 'Степянка', index: 7 },
+                { action: 0, x: 1234, y: 'Минск', index: 8 }
             ]
 
-        },
-        {
-            color: '#3336FF',
-            id_train: 3,
-            dots: [
-                { action: 1, x: 500, y: 'Минск', index: 4 },
-                { action: 0, x: 550, y: 'Борисов', index: 3 },
-                { action: 0, x: 550, y: 'Борисов', index: 3 },
-                { action: 0, x: 600, y: 'Орша', index: 1 },
-            ]
         }
     ]);
 
@@ -147,18 +174,22 @@ const App = () => {
         }
     }, [])
 
-    return <div>
-        <div className={cl.Graphs__container}>
 
+    const [changingGraphMode, setChangingGraphMode] = useState(true);
+
+    const changeMode = (checked) => {
+        setChangingGraphMode(checked)
+    }
+
+    return <div className={cl.App__container}>
+        <div className={cl.Graphs__container}>
             <VictoryChart
                 padding={{ top: 30, bottom: 50, left: 100, right: 30 }}
                 domainPadding={{ x: 0, y: [0, 5] }}
                 // theme={VictoryTheme.material}
+                // width={width}
                 width={width}
                 height={750}
-            // containerComponent={
-            //     <VictoryZoomContainer />
-            // }
             >
                 <VictoryAxis crossAxis
                     // style={{
@@ -173,8 +204,9 @@ const App = () => {
                     tickFormat={el => el % 60 === 0 ? el / 60 : null}
                     style={{
                         grid: {
-                            stroke: el => (el.tick % 30 === 0 ? "black" : "lightgrey"),
-                            strokeDasharray: el => (el.tick % 30 === 0 ? "8 4" : "1")
+                            stroke: el => (el.tick % 60 === 0 ? "black" : "lightgrey"),
+                            strokeWidth: 1.5,
+                            strokeDasharray: el => ((el.tick % 30 === 0 && el.tick % 60 !== 0) ? "8 4" : "0")
                         }
                     }}
                 />
@@ -183,21 +215,35 @@ const App = () => {
                     standalone={true}
                     tickValues={stations}
                     style={{
+                        tickLabels: { fontSize: 20 },
                         grid: {
                             stroke: "lightgrey",
                             strokeDasharray: "1"
                         }
                     }}
                 />
-
                 {graphs.map((graph, index) =>
                     <VictoryGroup
+                        className={cl.ChartGroup}
                         key={Date.now()}
                         data={graph.dots}
                     >
                         <VictoryLine
                             style={{ data: { stroke: graph.color } }}
                             sortKey="index"
+                            events={[
+                                {
+                                    target: "data",
+                                    eventHandlers: {
+                                        onClick: () => (
+                                            clickGraph(graph.id_train)
+                                        ),
+                                        onMouseDown: () => {
+                                            clickGraph(graph.id_train)
+                                        }
+                                    }
+                                }
+                            ]}
                         />
                         <VictoryScatter
                             style={
@@ -210,9 +256,18 @@ const App = () => {
                                 {
                                     target: "data",
                                     eventHandlers: {
-                                        onMouseDown: () => ({
-                                            mutation: props => Object.assign(props, { dragging: true, size: 10 })
-                                        }),
+                                        onClick: () => (
+                                            clickGraph(graph.id_train)
+                                        ),
+                                        onMouseDown: () =>
+                                        (
+
+                                            clickGraph(graph.id_train),
+                                            {
+                                                mutation: props => Object.assign(props, { dragging: true, size: 15 })
+                                            }
+                                        )
+                                        ,
                                         onMouseMove: (evt, targetProps) => {
                                             const { scale } = targetProps;
                                             if (targetProps.dragging) {
@@ -225,7 +280,22 @@ const App = () => {
                                                     return e.id_train;
                                                 }).indexOf(targetProps.style.id_train);
 
-                                                tempArr[pos].dots[targetProps.index] = { ...tempArr[pos].dots[targetProps.index], x: point.x_new }
+
+                                                // console.log(tempArr[pos].dots[targetProps.index])
+                                                // targetProps.data[pos].
+                                                let diff = (point.x_new - tempArr[pos].dots[targetProps.index].x)
+
+                                                if (changingGraphMode) {
+                                                    tempArr[pos].dots.map((el, index) => {
+                                                        // console.log()
+                                                        if (el.index > targetProps.index) {
+                                                            console.log('1123123')
+                                                            el.x = el.x + diff
+                                                        }
+                                                    })
+                                                } else {
+                                                    tempArr[pos].dots[targetProps.index] = { ...tempArr[pos].dots[targetProps.index], x: point.x_new }
+                                                }
 
                                                 setGraphs(tempArr)
 
@@ -253,16 +323,38 @@ const App = () => {
             </VictoryChart>
         </div>
 
+        <div>
+            <div>
+                <Select
+                    style={{ width: 250 }}
+                    // defaultValue="Номер поезда"
+                    value={selectedIdTrain !== -1 ? selectedIdTrain : "Номер поезда"}
+                    style={{ margin: '40px 10px 10px 10px' }}
+                    onChange={(value) => setSelectedIdTrain(value)}
+                >
 
-        {graphs.map((graph, index) => (
-            // convertDataToTable(graph),
-            <Table
-                key={index}
-                columns={columns}
-                dataSource={convertDataToTable(graph)}
-            ></Table>
-        ))
-        }
+                    {graphs.map((graph, index) => (
+                        <Option key={Date.now()} value={graph.id_train}>Поезд № {graph.id_train}</Option>
+                    ))
+                    }
+
+                </Select>
+            </div>
+            <div>
+                <Table
+                    locale={{ emptyText: 'Выберите поезд' }}
+                    columns={columns}
+                    pagination={false}
+                    dataSource={convertDataToTable(graphs[getIndexOfGraphByIdTrain(selectedIdTrain)])}
+                />
+            </div>
+            <div className={cl.Switch__container}>
+                <span>Автоматическое перемещение последующих стоянок </span>
+                <div className={cl.Switch}>
+                    <Switch defaultChecked onChange={changeMode} />
+                </div>
+            </div>
+        </div>
 
     </div >;
 };

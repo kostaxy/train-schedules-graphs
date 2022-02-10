@@ -1,3 +1,16 @@
 .Graphs__container {
     padding: 10px;
 }
+
+.App__container{
+    display: flex;
+    flex-direction: row;
+}
+.Switch__container{
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
+.Switch{
+    margin: 15px;
+}
