@@ -1,2 +1,2 @@
 # train-schedules-graphs
-Training in creating train schedules graphs
+https://kostaxy.github.io/train-schedules-graphs/
