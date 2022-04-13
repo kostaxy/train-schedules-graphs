@@ -21,7 +21,7 @@ const App = () => {
     const setMinutesTicks = () => {
         let minutesTemp = []
         // for (let i = 0; i <= 24 * 60; i++) {
-        for (let i = 9 * 60; i <= 21 * 60; i++) {
+        for (let i = 0 * 60; i <= 24 * 60; i++) {
             if (i % 10 === 0) {
                 minutesTemp.push(i)
             }
@@ -225,7 +225,7 @@ const App = () => {
                 {graphs.map((graph, index) =>
                     <VictoryGroup
                         className={cl.ChartGroup}
-                        key={Date.now()}
+                        key={index}
                         data={graph.dots}
                     >
                         <VictoryLine
@@ -334,7 +334,7 @@ const App = () => {
                 >
 
                     {graphs.map((graph, index) => (
-                        <Option key={Date.now()} value={graph.id_train}>Поезд № {graph.id_train}</Option>
+                        <Option key={index} value={graph.id_train}>Поезд № {graph.id_train}</Option>
                     ))
                     }
 
